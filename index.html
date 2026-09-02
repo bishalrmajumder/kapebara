@@ -255,7 +255,7 @@
     /* Join-the-waitlist Arrow Indicator — centered on the vertical centre line, below the logo */
     .chevron-action {
       position: absolute;
-      bottom: calc(env(safe-area-inset-bottom) + 2.2rem);
+      bottom: calc(env(safe-area-inset-bottom) + 3.4rem);
       left: 50%;
       transform: translateX(-50%);
       cursor: pointer;
@@ -264,18 +264,12 @@
       justify-content: center;
       width: 48px;
       height: 48px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-current);
       transition: all 0.3s var(--spring);
       animation: floatChevron 2.5s infinite ease-in-out;
     }
 
     .chevron-action:hover, .chevron-action:active {
       transform: translateX(-50%) scale(1.12);
-      background: rgba(255, 255, 255, 0.2);
     }
 
     .chevron-icon {
@@ -511,6 +505,14 @@
       transform: scale(0.98);
     }
 
+    .post-submit-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
     .back-nav-btn {
       background: transparent;
       border: none;
@@ -518,7 +520,6 @@
       font-size: 0.62rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      margin-top: 1.5rem;
       cursor: pointer;
       font-family: var(--sans);
     }
@@ -622,7 +623,10 @@
         <button type="submit" class="submit-waitlist-btn">Submit Allocation Request</button>
       </form>
 
-      <button class="back-nav-btn" onclick="goToLanding()">[ Back to Maison ]</button>
+      <div class="post-submit-actions">
+        <button type="button" class="back-nav-btn" onclick="resetAllocationForm()">Make a New Order   </button>
+        <button type="button" class="back-nav-btn" onclick="goToLanding()">   Home</button>
+      </div>
     </div>
 
     <footer>
@@ -810,6 +814,39 @@
         landingPage.classList.remove('hidden-page');
       }, 300);
     }
+
+    function resetAllocationForm() {
+      const form = document.getElementById('allocationForm');
+      form.reset();
+      quantity = 1;
+      document.getElementById('qtyVal').textContent = quantity;
+      document.getElementById('whatsappGroup').style.display = 'none';
+      document.getElementById('samePhoneCheck').checked = true;
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* Scroll / swipe down on the homepage -> jump to the waitlist form */
+    let navLock = false;
+    function triggerScrollNav() {
+      if (navLock || document.body.classList.contains('on-waitlist')) return;
+      navLock = true;
+      goToWaitlist();
+      setTimeout(() => { navLock = false; }, 700);
+    }
+
+    landingPage.addEventListener('wheel', (e) => {
+      if (e.deltaY > 0) triggerScrollNav();
+    }, { passive: true });
+
+    let touchStartY = 0;
+    landingPage.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    landingPage.addEventListener('touchend', (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      if (touchStartY - touchEndY > 40) triggerScrollNav();
+    }, { passive: true });
 
     function setTheme(mode) {
       const pillNoir = document.getElementById('pillNoir');
